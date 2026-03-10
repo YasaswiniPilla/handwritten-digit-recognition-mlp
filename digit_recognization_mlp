@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras.datasets import mnist
+
+# 1. Load Data
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# 2. Preprocessing
+# Reshape 28x28 images into a flat 784-vector
+x_train = x_train.reshape(60000, 784) / 255.0
+x_test = x_test.reshape(10000, 784) / 255.0
+
+# 3. Model Definition (Neural Network)
+model = MLPClassifier(
+    hidden_layer_sizes=(128, 64),
+    activation='relu',
+    solver='adam',
+    batch_size=120,
+    max_iter=50,
+    random_state=42,
+    verbose=True # Shows training progress in console
+)
+
+# 4. Training
+model.fit(x_train, y_train)
+
+# 5. Prediction & Metrics
+y_pred = model.predict(x_test)
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+# 6. Visualizing Predictions
+plt.figure(figsize=(10, 5))
+for i in range(6):
+    plt.subplot(2, 3, i+1)
+    plt.imshow(x_test[i].reshape(28, 28), cmap='gray')
+    plt.title(f"Predicted: {y_pred[i]} | Actual: {y_test[i]}")
+    plt.axis('off')
+plt.tight_layout()
+plt.show()
+
+# 7. Confusion Matrix Heatmap 
+plt.figure(figsize=(8, 6))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues')
+plt.title('Confusion Matrix: Predicted vs Actual')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.show()
+
